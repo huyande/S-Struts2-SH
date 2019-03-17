@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       					   http://www.springframework.org/schema/beans/spring-beans.xsd
+       					   http://www.springframework.org/schema/tx 
+       					   http://www.springframework.org/schema/tx/spring-tx.xsd
+       					   http://www.springframework.org/schema/aop 
+       					   http://www.springframework.org/schema/aop/spring-aop.xsd
+       					   http://www.springframework.org/schema/context 
+       					   http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<!-- 配置spring创建容器时要扫描的包 -->
+	<context:component-scan base-package="com.itheima"></context:component-scan>
+	
+	
+	<!-- 配置hibernateTemplate -->
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 配置sessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- 连接数据库的信息 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- hibernate的可选配置 -->
+		<property name="hibernateProperties">
+			<props>
+				<!-- 数据库的方言 -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<!-- 是否显示SQL语句 -->
+				<prop key="hibernate.show_sql">true</prop>
+				<!-- 是否格式化SQL语句 -->
+				<prop key="hibernate.format_sql">true</prop>
+				<!-- 是否让hibernate根据表结构的变化来生成DDL语句-->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<!-- 此行是spring中用于把session绑定到当前线程的配置。不配置，默认也是绑定到当前线程 -->
+				<prop key="hibernate.current_session_context_class">
+					org.springframework.orm.hibernate5.SpringSessionContext
+				</prop>
+			</props>
+		</property>
+		<!-- 指定映射配置（可以是注解也可以是xml） -->
+		<property name="packagesToScan">
+			<array>
+				<value>com.itheima.domain</value>
+			</array>
+		</property>
+	</bean>
+	
+	<!-- 配置dataSource -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/crm_ee299"></property>
+		<property name="user" value="root"></property>
+		<property name="password" value="1234"></property>
+	</bean>
+	
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 开启spring对注解事务的支持 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
